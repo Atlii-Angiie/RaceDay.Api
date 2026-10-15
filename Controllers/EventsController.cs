@@ -1,9 +1,9 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RaceDay.Api.Data;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using RaceDay.Api.Data;
 using RaceDay.Api.DTOs;
 
 namespace RaceDay.Api.Controllers
@@ -25,6 +25,7 @@ namespace RaceDay.Api.Controllers
         public async Task<IActionResult> GetEvents()
         {
             var events = await _context.Events.ToListAsync();
+
             return Ok(events);
         }
 
@@ -47,55 +48,56 @@ namespace RaceDay.Api.Controllers
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> CreateEvent(CreateEventRequest request)
         {
-            // Identify the Organiser from their JWT.
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Identify the logged-in Organiser.
+            string? userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
             if (!int.TryParse(userId, out int organiserId))
             {
                 return Unauthorized();
             }
 
-            // NEW VALIDATION: Event name is required.
+            // Event name must not be blank.
             if (string.IsNullOrWhiteSpace(request.Name))
             {
                 return BadRequest("Event name is required.");
             }
 
-            // NEW VALIDATION: Event location is required.
+            // Event location must not be blank.
             if (string.IsNullOrWhiteSpace(request.Location))
             {
                 return BadRequest("Event location is required.");
             }
 
-            // Registration must close on or before the event date.
+            // Registration must close by the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
             }
 
-            // Maximum participants must be greater than zero.
+            // Capacity must be positive.
             if (request.MaxParticipants <= 0)
             {
                 return BadRequest(
                     "Maximum participants must be greater than zero.");
             }
 
-            // Distance must be greater than zero.
+            // Distance must be positive.
             if (request.Distance <= 0)
             {
                 return BadRequest(
                     "Event distance must be greater than zero.");
             }
 
-            // Entry fee may be zero, but cannot be negative.
+            // Free events are allowed, but negative fees are not.
             if (request.EntryFee < 0)
             {
                 return BadRequest(
                     "Entry fee cannot be negative.");
             }
 
-            // Check that the event type exists.
+            // Verify that the event type exists.
             bool eventTypeExists = await _context.EventTypes
                 .AnyAsync(t => t.Id == request.EventTypeId);
 
@@ -146,7 +148,7 @@ namespace RaceDay.Api.Controllers
             int id,
             UpdateEventRequest request)
         {
-            // Find the event being updated.
+            // Find the event.
             var raceEvent = await _context.Events.FindAsync(id);
 
             if (raceEvent == null)
@@ -155,60 +157,76 @@ namespace RaceDay.Api.Controllers
             }
 
             // Identify the logged-in Organiser.
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
             if (!int.TryParse(userId, out int organiserId))
             {
                 return Unauthorized();
             }
 
-            // Only the Organiser who created the event may edit it.
+            // Only the event owner can update the event.
             if (raceEvent.OrganizerId != organiserId)
             {
                 return Forbid();
             }
 
-            // NEW VALIDATION: Event name is required.
+            // Event name must not be blank.
             if (string.IsNullOrWhiteSpace(request.Name))
             {
                 return BadRequest("Event name is required.");
             }
 
-            // NEW VALIDATION: Event location is required.
+            // Event location must not be blank.
             if (string.IsNullOrWhiteSpace(request.Location))
             {
                 return BadRequest("Event location is required.");
             }
 
-            // Registration must close on or before the event date.
+            // Registration must close by the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
             }
 
-            // Maximum participants must be greater than zero.
+            // Capacity must be positive.
             if (request.MaxParticipants <= 0)
             {
                 return BadRequest(
                     "Maximum participants must be greater than zero.");
             }
 
-            // Distance must be greater than zero.
+            // NEW VALIDATION:
+            // Count enrolments that have not been cancelled.
+            int activeEnrollments = await _context.Enrollments
+                .CountAsync(e =>
+                    e.EventId == id &&
+                    e.Status != "Cancelled");
+
+            // NEW VALIDATION:
+            // Capacity cannot be smaller than active enrolments.
+            if (request.MaxParticipants < activeEnrollments)
+            {
+                return BadRequest(
+                    "Maximum participants cannot be less than the number of active enrolments.");
+            }
+
+            // Distance must be positive.
             if (request.Distance <= 0)
             {
                 return BadRequest(
                     "Event distance must be greater than zero.");
             }
 
-            // Entry fee may be zero, but cannot be negative.
+            // Free events are allowed, but negative fees are not.
             if (request.EntryFee < 0)
             {
                 return BadRequest(
                     "Entry fee cannot be negative.");
             }
 
-            // Check that the requested event type exists.
+            // Verify that the event type exists.
             bool eventTypeExists = await _context.EventTypes
                 .AnyAsync(t => t.Id == request.EventTypeId);
 
@@ -217,7 +235,7 @@ namespace RaceDay.Api.Controllers
                 return BadRequest("Invalid event type.");
             }
 
-            // Update the event details.
+            // Update the event.
             raceEvent.Name = request.Name.Trim();
             raceEvent.Description = request.Description;
             raceEvent.EventDate = request.EventDate;
@@ -257,26 +275,28 @@ namespace RaceDay.Api.Controllers
             }
 
             // Identify the logged-in Organiser.
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
             if (!int.TryParse(userId, out int organiserId))
             {
                 return Unauthorized();
             }
 
-            // Only the event owner can delete it.
+            // Only the event owner can delete the event.
             if (raceEvent.OrganizerId != organiserId)
             {
                 return Forbid();
             }
 
-            // Prevent deletion when participants have enrolled.
+            // Do not delete events that have enrolments.
             bool hasEnrollments = await _context.Enrollments
                 .AnyAsync(e => e.EventId == id);
 
             if (hasEnrollments)
             {
-                return Conflict("Cannot delete an event with enrollments.");
+                return Conflict(
+                    "Cannot delete an event with enrollments.");
             }
 
             _context.Events.Remove(raceEvent);
