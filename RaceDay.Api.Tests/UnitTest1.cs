@@ -58,5 +58,20 @@ namespace RaceDay.Api.Tests
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public void VerifyPassword_WithEmptyPassword_ShouldReturnFalse()
+        {
+            // Arrange
+            string password = "TestPassword#2026";
+            string hashedPassword = _passwordService.HashPassword(password);
+
+            // Act
+            bool result = _passwordService.VerifyPassword("", hashedPassword);
+
+            // Assert
+            Assert.False(result);
+        }
+
     }
 }
