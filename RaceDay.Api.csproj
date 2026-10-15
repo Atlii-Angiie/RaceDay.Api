@@ -19,8 +19,10 @@
   </ItemGroup>
 
 
-<ItemGroup>
-  <Compile Remove="RaceDay.Api.Tests\**\*.cs" />
-</ItemGroup>
-
+	<ItemGroup>
+		<Compile Remove="RaceDay.Api.Tests\**\*.cs" />
+		<Content Remove="RaceDay.Api.Tests\**\*" />
+		<None Remove="RaceDay.Api.Tests\**\*" />
+		<EmbeddedResource Remove="RaceDay.Api.Tests\**\*" />
+	</ItemGroup>
 </Project>

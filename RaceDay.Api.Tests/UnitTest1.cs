@@ -27,9 +27,10 @@ namespace RaceDay.Api.Tests
             string hashedPassword =
                 passwordService.HashPassword(password);
 
+            // Correct order: password first, hash second.
             bool result = passwordService.VerifyPassword(
-                hashedPassword,
-                password);
+                password,
+                hashedPassword);
 
             Assert.True(result);
         }
@@ -42,9 +43,10 @@ namespace RaceDay.Api.Tests
             string hashedPassword =
                 passwordService.HashPassword("CorrectPassword123!");
 
+            // Correct order: password first, hash second.
             bool result = passwordService.VerifyPassword(
-                hashedPassword,
-                "WrongPassword123!");
+                "WrongPassword123!",
+                hashedPassword);
 
             Assert.False(result);
         }
@@ -72,9 +74,10 @@ namespace RaceDay.Api.Tests
             string hashedPassword =
                 passwordService.HashPassword("SecurePassword123!");
 
+            // Correct order: password first, hash second.
             bool result = passwordService.VerifyPassword(
-                hashedPassword,
-                "");
+                "",
+                hashedPassword);
 
             Assert.False(result);
         }
@@ -91,19 +94,19 @@ namespace RaceDay.Api.Tests
             string secondHash =
                 passwordService.HashPassword(password);
 
+            // Correct order: password first, hash second.
             bool firstResult = passwordService.VerifyPassword(
-                firstHash,
-                password);
+                password,
+                firstHash);
 
             bool secondResult = passwordService.VerifyPassword(
-                secondHash,
-                password);
+                password,
+                secondHash);
 
             Assert.True(firstResult);
             Assert.True(secondResult);
         }
 
-        // NEW TEST
         [Fact]
         public void HashPassword_WithValidPassword_ReturnsNonEmptyHash()
         {
