@@ -20,6 +20,7 @@ namespace RaceDay.Api.Controllers
             _context = context;
         }
 
+        // GET: api/events
         [HttpGet]
         public async Task<IActionResult> GetEvents()
         {
@@ -27,7 +28,8 @@ namespace RaceDay.Api.Controllers
 
             return Ok(events);
         }
-        
+
+        // GET: api/events/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {
@@ -41,6 +43,7 @@ namespace RaceDay.Api.Controllers
             return Ok(raceEvent);
         }
 
+        // POST: api/events
         [HttpPost]
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> CreateEvent(CreateEventRequest request)
@@ -51,6 +54,15 @@ namespace RaceDay.Api.Controllers
             if (!int.TryParse(userId, out int organiserId))
             {
                 return Unauthorized();
+            }
+
+            // NEW VALIDATION:
+            // Registration must close on or before the event date.
+
+            if (request.RegistrationDeadline > request.EventDate)
+            {
+                return BadRequest(
+                    "Registration deadline cannot be after the event date.");
             }
 
             // Check that the event type exists.
@@ -97,6 +109,7 @@ namespace RaceDay.Api.Controllers
             );
         }
 
+        // PUT: api/events/{id}
         [HttpPut("{id}")]
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> UpdateEvent(
@@ -123,6 +136,15 @@ namespace RaceDay.Api.Controllers
             if (raceEvent.OrganizerId != organiserId)
             {
                 return Forbid();
+            }
+
+            // NEW VALIDATION:
+            // Registration must close on or before the event date.
+
+            if (request.RegistrationDeadline > request.EventDate)
+            {
+                return BadRequest(
+                    "Registration deadline cannot be after the event date.");
             }
 
             // Check that the requested event type exists.
@@ -160,7 +182,7 @@ namespace RaceDay.Api.Controllers
             });
         }
 
-
+        // DELETE: api/events/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> DeleteEvent(int id)
@@ -201,6 +223,5 @@ namespace RaceDay.Api.Controllers
 
             return NoContent();
         }
-
     }
 }
