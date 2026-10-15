@@ -1,148 +1,301 @@
-# RaceDay REST API
+# RaceDay API
+
+**A RESTful Race Event Management API built with ASP.NET Core 8, Entity Framework Core, and SQL Server.**
+
+RaceDay is a backend application that allows organisers to manage sporting events and participants to register for events and view their race results.
+
+This project was developed as part of the **RaceDay Part 2 REST API assignment**, building on the database design created in Part 1.
+
+## Table of Contents
+
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Database Design](#database-design)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Continuous Integration](#continuous-integration)
+- [Project Structure](#project-structure)
+- [Security and Validation](#security-and-validation)
+- [Known Limitations](#known-limitations)
+- [Future Improvements](#future-improvements)
+- [Acknowledgements](#acknowledgements)
+
+---
 
 ## About the Project
 
-RaceDay is an ASP.NET Core REST API developed to manage sporting events, participant registrations, race categories, and results.
+The RaceDay API provides a backend system for managing sporting events such as running, walking, and cycling races.
 
-The system supports two user roles:
+It supports two user roles:
 
-- **Organiser:** Creates and manages events, categories, and race results.
-- **Participant:** Views events, enrols in available categories, and views personal results.
+**Organiser**
 
-This project was developed as part of the RaceDay Part 2 assignment.
+Organisers can create and manage events, configure race categories, view participant enrolments, and record race results.
 
-## Built With
+**Participant**
 
-- C# and ASP.NET Core Web API
-- .NET 8
-- Entity Framework Core
-- SQL Server LocalDB
-- SQL Server Management Studio (SSMS)
-- Swagger / OpenAPI
-- JWT authentication
-- xUnit
-- GitHub Actions
-- Visual Studio 2022
+Participants can browse events, enrol in available categories, cancel their enrolments, and view their own results.
+
+The API uses JSON for requests and responses and can be tested through Swagger UI.
+
+## Features
+
+### User Authentication
+
+- User registration.
+- User login.
+- Secure password hashing.
+- JWT token generation.
+- Role-based authorization.
+- Access to the logged-in user's profile.
+
+### Event Management
+
+- View available events.
+- View an event by ID.
+- Create new events.
+- Update existing events.
+- Delete eligible events.
+- Restrict event changes to the organiser who owns the event.
+
+### Category Management
+
+- Create, view, update, and delete categories.
+- Link categories to events.
+- View categories available for a specific event.
+- Remove category links when allowed.
+
+### Participant Enrolment
+
+- Enrol in an event category.
+- View personal enrolments.
+- View enrolment details.
+- Cancel an enrolment.
+- Prevent duplicate enrolments.
+- Check event registration deadlines and capacity.
+
+### Race Results
+
+- Allow organisers to record or update results.
+- Allow participants to view their own results.
+- Allow organisers to view results for their events.
+
+## Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| C# | Backend programming language |
+| ASP.NET Core Web API (.NET 8) | REST API framework |
+| Entity Framework Core | Object-relational mapping |
+| SQL Server LocalDB | Development database |
+| SQL Server Management Studio | Database inspection and management |
+| JWT Bearer Authentication | User authentication |
+| ASP.NET Core Identity PasswordHasher | Password hashing |
+| Swagger / OpenAPI | API documentation and manual testing |
+| xUnit | Automated testing |
+| Git | Version control |
+| GitHub | Source code repository |
+| GitHub Actions | Continuous integration |
+| Visual Studio 2022 | Development environment |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Visual Studio 2022 with ASP.NET and web development support
-- .NET 8 SDK
-- SQL Server LocalDB
-- SQL Server Management Studio (optional)
+Install the following software:
 
-### Installation
+- Visual Studio 2022 with the ASP.NET and web development workload.
+- .NET 8 SDK.
+- SQL Server LocalDB.
+- SQL Server Management Studio (optional but useful).
+- Git.
 
-1. Clone the repository.
-2. Open `RaceDay.Api.sln` in Visual Studio 2022.
-3. Restore the NuGet packages.
-4. Configure the database connection string for SQL Server LocalDB.
-5. Configure a JWT signing key using .NET User Secrets.
-6. Apply Entity Framework Core migrations using `Update-Database`.
-7. Run the API and open Swagger.
+### Clone the Repository
 
-**Note:** The database must contain the required event types before creating events. Check the database setup instructions for the values used during testing.
+```bash
+git clone https://github.com/Atlii-Angie/RaceDay.Api.git
+cd RaceDay.Api
+```
 
-## Authentication and Authorization
+### Restore Dependencies
 
-The API uses JWT bearer tokens for authentication.
+```bash
+dotnet restore RaceDay.Api.sln
+```
 
-Users can register and log in using:
+### Configure the Database
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
+The application uses SQL Server LocalDB during development.
 
-After logging in, users can enter their JWT token in Swagger's **Authorize** dialog.
+The development connection string should point to a SQL Server instance such as:
 
-Access to protected endpoints depends on the user's role. Passwords are stored as hashes rather than plain text.
+```text
+(localdb)\MSSQLLocalDB
+```
 
-**Design note:** JWT bearer authentication is token-based, rather than server-side session authentication.
+The database name used during development is:
 
-## API Endpoints
+```text
+RaceDayDB
+```
 
-| Feature | Endpoint | Access |
-|---|---|---|
-| Register | `POST /api/auth/register` | Public |
-| Login | `POST /api/auth/login` | Public |
-| View profile | `GET /api/profiles/me` | Authenticated user |
-| View events | `GET /api/events` | Authenticated user |
-| Create event | `POST /api/events` | Organiser |
-| Update event | `PUT /api/events/{id}` | Organiser and event owner |
-| Delete event | `DELETE /api/events/{id}` | Organiser and event owner |
-| View categories | `GET /api/categories` | Authenticated user |
-| Create category | `POST /api/categories` | Organiser |
-| Enrol in event | `POST /api/enrollments` | Participant |
-| View own enrolments | `GET /api/enrollments/me` | Participant |
-| Record result | `POST /api/results` | Organiser and event owner |
-| View own results | `GET /api/results/me` | Participant |
+Update the connection string in your local configuration if your SQL Server instance is different.
 
-Additional category, enrolment, and result endpoints are documented in Swagger.
+### Configure JWT Authentication
+
+The API requires a JWT signing key.
+
+For local development, configure the key using .NET User Secrets rather than committing a secret to GitHub.
+
+From the API project directory, run:
+
+```bash
+dotnet user-secrets set "Jwt:Key" "REPLACE_WITH_A_LONG_RANDOM_SECRET_KEY"
+```
+
+The application also uses JWT issuer and audience settings. Ensure that `Jwt:Issuer` and `Jwt:Audience` are configured to match your local `appsettings.json` or other development configuration.
+
+**Do not commit actual JWT secrets, passwords, or database credentials to the repository.**
+
+### Apply Database Migrations
+
+Run the following command from the API project directory:
+
+```bash
+dotnet ef database update
+```
+
+Alternatively, use the Package Manager Console in Visual Studio:
+
+```powershell
+Update-Database
+```
+
+The database is created and updated using Entity Framework Core Code First migrations.
+
+**Note:** The development database used manually added EventType records for running, walking, and cycling. If these values have not been included in migrations or seed code, they must be added before creating events that reference them.
+
+### Run the Application
+
+Start the API using Visual Studio 2022 or run:
+
+```bash
+dotnet run
+```
+
+When running through the Visual Studio development profile, Swagger UI is available at:
+
+```text
+https://localhost:7199/swagger
+```
+
+The exact URL and port may differ depending on the selected launch profile.
 
 ## Database Design
 
-The API uses Entity Framework Core Code First with SQL Server.
+The database was developed using **Entity Framework Core Code First**, based on the approved Part 1 entity relationship diagram.
 
-Main entities:
+### Main Entities
 
-- Users
-- EventType
-- Event
-- Category
-- EventCategory
-- Enrollment
-- Results
+| Entity | Description |
+|---|---|
+| User | Stores registered users and their roles |
+| EventType | Stores event types such as Run, Walk, and Cycle |
+| Event | Stores sporting event information |
+| Category | Stores race category information |
+| EventCategory | Links available categories to events |
+| Enrollment | Stores participant event enrolments |
+| Result | Stores participant race results |
 
-### Changes From Part 1
+### Changes from the Part 1 ERD
 
-The Part 2 design extends the original database structure:
+The implementation includes several extensions to support the API requirements:
 
-- `EventCategory` supports multiple categories per event.
-- `Enrollment.CategoryId` records the category selected by a participant.
-- `Event.EntryFee` stores the event entry fee.
-- Additional user profile fields include phone number and location.
+1. **EventCategory junction entity:** Introduced to allow events to have multiple categories.
+2. **Event.CategoryId removed:** Replaced by the EventCategory relationship.
+3. **Enrollment.CategoryId added:** Identifies the category selected by a participant.
+4. **Event.EntryFee added:** Stores the entry fee for an event.
+5. **User.Phone and User.Location added:** Support additional participant profile information.
+6. **Result.FinishTime:** Represented using a nullable C# `TimeSpan`, mapped to the SQL Server `time` type.
 
-These changes support the functionality implemented in Part 2.
+These changes support category enrolment, event pricing, participant profiles, and race result recording.
 
-## Testing
+## Authentication and Authorization
 
-Testing was performed using Swagger and xUnit.
+RaceDay uses **JWT bearer authentication**.
 
-### Automated Tests
+### Registration
 
-Three xUnit tests verify password handling:
+Users register with their account details and a supported role.
 
-1. Password hashing does not return the original password.
-2. The correct password passes verification.
-3. An incorrect password fails verification.
+Supported roles:
 
-### Manual API Testing
+- `Organiser`
+- `Participant`
 
-Swagger was used to test registration, login, role-based authorization, event management, enrolments, and results.
+Passwords are hashed before being stored in the database.
 
-Tests included successful requests and expected error responses such as `401 Unauthorized`, `403 Forbidden`, and `404 Not Found`.
+### Login
 
-## CI/CD
+Users log in using their credentials.
 
-GitHub Actions automatically restores dependencies, builds the solution, and runs automated tests when changes are pushed.
+When authentication succeeds, the API generates a JWT containing information such as:
 
-The workflow is defined in:
+- User ID.
+- Email.
+- User role.
+- Token expiration.
 
-`.github/workflows/dotnet.yml`
+### Using JWT in Swagger
 
-Successful workflow runs and test results are documented in the assignment evidence screenshots.
+1. Register or log in using the authentication endpoints.
+2. Copy the JWT returned by the API.
+3. Click **Authorize** in Swagger.
+4. Enter the token using the bearer authorization option.
+5. Test endpoints permitted for the user's role.
 
-## Known Limitations
+### Role-Based Access
 
-- Authentication uses JWT tokens rather than server-side sessions.
-- Automated unit tests currently focus on password handling; other API workflows were tested manually.
-- The API is configured for local development using SQL Server LocalDB.
+| Action | Organiser | Participant |
+|---|---|---|
+| View events | Yes | Yes |
+| Create events | Yes | No |
+| Update owned events | Yes | No |
+| Delete owned events | Yes | No |
+| Manage categories | Yes | No |
+| Enrol in events | No | Yes |
+| View own enrolments | No | Yes |
+| Record results for owned events | Yes | No |
+| View own results | No | Yes |
 
-## Template Credit
+**Assignment note:** The implementation uses JWT bearer authentication rather than server-side session authentication. This difference from the assignment terminology is documented here.
 
-README structure adapted from [Best-README-Template](https://github.com/othneildrew/Best-README-Template).
+## API Endpoints
 
-## Author
+The following endpoints are implemented in the API.
 
-Individual academic project.
+### Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a user |
+| POST | `/api/auth/login` | Authenticate and obtain a JWT |
+
+### Profiles
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/Profiles/me` | View the authenticated user's profile |
+
+### Events
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/Events` | Get all events |
+| GET | `/api/Events/{id}` | Get an event by ID |
+| POST | `/api/Events` | Create an event |
+| PUT | `/api/Events/{id}` | Update an owned event |
+| DELETE | `/api/Events/{id}` | Delete an owned
