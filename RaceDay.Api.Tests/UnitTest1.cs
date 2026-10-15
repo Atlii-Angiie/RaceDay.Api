@@ -73,5 +73,21 @@ namespace RaceDay.Api.Tests
             Assert.False(result);
         }
 
+
+        [Fact]
+        public void HashPassword_TwoDifferentHashes_ShouldBothVerify()
+        {
+            // Arrange
+            string password = "TestPassword#2026";
+
+            // Act
+            string firstHash = _passwordService.HashPassword(password);
+            string secondHash = _passwordService.HashPassword(password);
+
+            // Assert
+            Assert.True(_passwordService.VerifyPassword(password, firstHash));
+            Assert.True(_passwordService.VerifyPassword(password, secondHash));
+        }
     }
 }
+
