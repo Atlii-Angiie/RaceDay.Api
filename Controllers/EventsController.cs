@@ -56,19 +56,34 @@ namespace RaceDay.Api.Controllers
                 return Unauthorized();
             }
 
-            // Validate registration deadline.
+            // Registration must close on or before the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
             }
 
-            // NEW VALIDATION:
             // Maximum participants must be greater than zero.
             if (request.MaxParticipants <= 0)
             {
                 return BadRequest(
                     "Maximum participants must be greater than zero.");
+            }
+
+            // NEW VALIDATION:
+            // Distance must be greater than zero.
+            if (request.Distance <= 0)
+            {
+                return BadRequest(
+                    "Event distance must be greater than zero.");
+            }
+
+            // NEW VALIDATION:
+            // Entry fee may be zero, but cannot be negative.
+            if (request.EntryFee < 0)
+            {
+                return BadRequest(
+                    "Entry fee cannot be negative.");
             }
 
             // Check that the event type exists.
@@ -144,19 +159,34 @@ namespace RaceDay.Api.Controllers
                 return Forbid();
             }
 
-            // Validate registration deadline.
+            // Registration must close on or before the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
             }
 
-            // NEW VALIDATION:
             // Maximum participants must be greater than zero.
             if (request.MaxParticipants <= 0)
             {
                 return BadRequest(
                     "Maximum participants must be greater than zero.");
+            }
+
+            // NEW VALIDATION:
+            // Distance must be greater than zero.
+            if (request.Distance <= 0)
+            {
+                return BadRequest(
+                    "Event distance must be greater than zero.");
+            }
+
+            // NEW VALIDATION:
+            // Entry fee may be zero, but cannot be negative.
+            if (request.EntryFee < 0)
+            {
+                return BadRequest(
+                    "Entry fee cannot be negative.");
             }
 
             // Check that the requested event type exists.
