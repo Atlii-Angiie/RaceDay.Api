@@ -1,93 +1,124 @@
 
-using RaceDay.Api.Services;
 using Xunit;
+using RaceDay.Api.Services;
 
 namespace RaceDay.Api.Tests
 {
-    public class PasswordServiceTests
+    public class UnitTest1
     {
-        private readonly PasswordService _passwordService = new();
-
         [Fact]
-        public void HashPasswordSamePasswordTwiceShouldProduceDifferentHashes()
+        public void HashPassword_DoesNotStorePlainText()
         {
             // Arrange
-            string password = "TestPassword#2026";
+            var passwordService = new PasswordService();
+            string password = "SecurePassword123!";
 
             // Act
-            string firstHash = _passwordService.HashPassword(password);
-            string secondHash = _passwordService.HashPassword(password);
+            string hashedPassword =
+                passwordService.HashPassword(password);
 
             // Assert
-            Assert.NotEqual(firstHash, secondHash);
+            Assert.NotEqual(password, hashedPassword);
         }
 
-
         [Fact]
-        public void VerifyPassword_WithCorrectPassword_ShouldReturnTrue()
+        public void VerifyPassword_WithCorrectPassword_ReturnsTrue()
         {
             // Arrange
-            string password = "TestPassword#2026";
+            var passwordService = new PasswordService();
+            string password = "SecurePassword123!";
 
             string hashedPassword =
-                _passwordService.HashPassword(password);
+                passwordService.HashPassword(password);
 
             // Act
-            bool result = _passwordService.VerifyPassword(
-                password,
-                hashedPassword);
+            bool result = passwordService.VerifyPassword(
+                hashedPassword,
+                password);
 
             // Assert
             Assert.True(result);
         }
 
         [Fact]
-        public void VerifyPassword_WithIncorrectPassword_ShouldReturnFalse()
+        public void VerifyPassword_WithIncorrectPassword_ReturnsFalse()
         {
             // Arrange
-            string password = "TestPassword#2026";
+            var passwordService = new PasswordService();
 
             string hashedPassword =
-                _passwordService.HashPassword(password);
+                passwordService.HashPassword("CorrectPassword123!");
 
             // Act
-            bool result = _passwordService.VerifyPassword(
-                "WrongPassword123",
-                hashedPassword);
+            bool result = passwordService.VerifyPassword(
+                hashedPassword,
+                "WrongPassword123!");
 
             // Assert
             Assert.False(result);
         }
 
         [Fact]
-        public void VerifyPassword_WithEmptyPassword_ShouldReturnFalse()
+        public void HashPassword_SamePasswordProducesDifferentHashes()
         {
             // Arrange
-            string password = "TestPassword#2026";
-            string hashedPassword = _passwordService.HashPassword(password);
+            var passwordService = new PasswordService();
+            string password = "SecurePassword123!";
 
             // Act
-            bool result = _passwordService.VerifyPassword("", hashedPassword);
+            string firstHash =
+                passwordService.HashPassword(password);
+
+            string secondHash =
+                passwordService.HashPassword(password);
+
+            // Assert
+            Assert.NotEqual(firstHash, secondHash);
+        }
+
+        [Fact]
+        public void VerifyPassword_WithEmptyPassword_ReturnsFalse()
+        {
+            // Arrange
+            var passwordService = new PasswordService();
+
+            string hashedPassword =
+                passwordService.HashPassword("SecurePassword123!");
+
+            // Act
+            bool result = passwordService.VerifyPassword(
+                hashedPassword,
+                "");
 
             // Assert
             Assert.False(result);
         }
 
-
         [Fact]
-        public void HashPassword_TwoDifferentHashes_ShouldBothVerify()
+        public void VerifyPassword_TwoDifferentHashesBothVerify()
         {
             // Arrange
-            string password = "TestPassword#2026";
+            var passwordService = new PasswordService();
+            string password = "SecurePassword123!";
+
+            string firstHash =
+                passwordService.HashPassword(password);
+
+            string secondHash =
+                passwordService.HashPassword(password);
 
             // Act
-            string firstHash = _passwordService.HashPassword(password);
-            string secondHash = _passwordService.HashPassword(password);
+            bool firstResult = passwordService.VerifyPassword(
+                firstHash,
+                password);
+
+            bool secondResult = passwordService.VerifyPassword(
+                secondHash,
+                password);
 
             // Assert
-            Assert.True(_passwordService.VerifyPassword(password, firstHash));
-            Assert.True(_passwordService.VerifyPassword(password, secondHash));
+            Assert.True(firstResult);
+            Assert.True(secondResult);
         }
     }
 }
-
