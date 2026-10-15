@@ -25,7 +25,6 @@ namespace RaceDay.Api.Controllers
         public async Task<IActionResult> GetEvents()
         {
             var events = await _context.Events.ToListAsync();
-
             return Ok(events);
         }
 
@@ -56,6 +55,18 @@ namespace RaceDay.Api.Controllers
                 return Unauthorized();
             }
 
+            // NEW VALIDATION: Event name is required.
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return BadRequest("Event name is required.");
+            }
+
+            // NEW VALIDATION: Event location is required.
+            if (string.IsNullOrWhiteSpace(request.Location))
+            {
+                return BadRequest("Event location is required.");
+            }
+
             // Registration must close on or before the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
@@ -70,7 +81,6 @@ namespace RaceDay.Api.Controllers
                     "Maximum participants must be greater than zero.");
             }
 
-            // NEW VALIDATION:
             // Distance must be greater than zero.
             if (request.Distance <= 0)
             {
@@ -78,7 +88,6 @@ namespace RaceDay.Api.Controllers
                     "Event distance must be greater than zero.");
             }
 
-            // NEW VALIDATION:
             // Entry fee may be zero, but cannot be negative.
             if (request.EntryFee < 0)
             {
@@ -159,6 +168,18 @@ namespace RaceDay.Api.Controllers
                 return Forbid();
             }
 
+            // NEW VALIDATION: Event name is required.
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return BadRequest("Event name is required.");
+            }
+
+            // NEW VALIDATION: Event location is required.
+            if (string.IsNullOrWhiteSpace(request.Location))
+            {
+                return BadRequest("Event location is required.");
+            }
+
             // Registration must close on or before the event date.
             if (request.RegistrationDeadline > request.EventDate)
             {
@@ -173,7 +194,6 @@ namespace RaceDay.Api.Controllers
                     "Maximum participants must be greater than zero.");
             }
 
-            // NEW VALIDATION:
             // Distance must be greater than zero.
             if (request.Distance <= 0)
             {
@@ -181,7 +201,6 @@ namespace RaceDay.Api.Controllers
                     "Event distance must be greater than zero.");
             }
 
-            // NEW VALIDATION:
             // Entry fee may be zero, but cannot be negative.
             if (request.EntryFee < 0)
             {
