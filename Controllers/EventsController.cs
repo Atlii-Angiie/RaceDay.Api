@@ -56,13 +56,19 @@ namespace RaceDay.Api.Controllers
                 return Unauthorized();
             }
 
-            // NEW VALIDATION:
-            // Registration must close on or before the event date.
-
+            // Validate registration deadline.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
+            }
+
+            // NEW VALIDATION:
+            // Maximum participants must be greater than zero.
+            if (request.MaxParticipants <= 0)
+            {
+                return BadRequest(
+                    "Maximum participants must be greater than zero.");
             }
 
             // Check that the event type exists.
@@ -138,13 +144,19 @@ namespace RaceDay.Api.Controllers
                 return Forbid();
             }
 
-            // NEW VALIDATION:
-            // Registration must close on or before the event date.
-
+            // Validate registration deadline.
             if (request.RegistrationDeadline > request.EventDate)
             {
                 return BadRequest(
                     "Registration deadline cannot be after the event date.");
+            }
+
+            // NEW VALIDATION:
+            // Maximum participants must be greater than zero.
+            if (request.MaxParticipants <= 0)
+            {
+                return BadRequest(
+                    "Maximum participants must be greater than zero.");
             }
 
             // Check that the requested event type exists.
