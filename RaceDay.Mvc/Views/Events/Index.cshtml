@@ -1,0 +1,9 @@
+@model List<RaceDay.Mvc.Models.RaceEvent>
+@{ViewData["Title"]="Browse Events";}
+<h1>Browse Race Events</h1>
+@if(ViewBag.Error!=null){<div class="alert alert-warning">@ViewBag.Error</div>}
+<form method="get" class="d-flex gap-2 mb-3"><input class="form-control" name="search" placeholder="Search event or location" value="@Context.Request.Query["search"]"/><button class="btn btn-primary">Search</button></form>
+@if(Context.Session.GetString("UserRole")=="Organiser"){<a asp-action="Create" class="btn btn-success mb-3">Create Event</a>}
+<table class="table table-striped"><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>Distance</th><th>Fee</th><th></th></tr></thead><tbody>
+@foreach(var e in Model){<tr><td>@e.Name</td><td>@e.EventDate</td><td>@e.Location</td><td>@e.Distance km</td><td>R @e.EntryFee</td><td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@e.Id">Details</a></td></tr>}
+</tbody></table>

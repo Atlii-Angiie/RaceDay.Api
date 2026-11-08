@@ -1,0 +1,7 @@
+@model List<RaceDay.Mvc.Models.CategoryModel>
+@{ViewData["Title"]="Categories";}
+<h1>Race Categories</h1>
+@if(ViewBag.Error!=null){<div class="alert alert-warning">@ViewBag.Error</div>}
+<form asp-action="Create" method="post" class="row g-2 mb-4">@Html.AntiForgeryToken()<div class="col-md-4"><input name="Name" class="form-control" placeholder="Category name" required /></div><div class="col-md-5"><input name="Description" class="form-control" placeholder="Description" /></div><div class="col-md-3"><button class="btn btn-primary">Add Category</button></div></form>
+<table class="table"><thead><tr><th>ID</th><th>Name</th><th>Description</th><th></th></tr></thead><tbody>@foreach(var c in Model){<tr><td>@c.Id</td><td>@c.Name</td><td>@c.Description</td><td><form asp-action="Delete" asp-route-id="@c.Id" method="post">@Html.AntiForgeryToken()<button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>}</tbody></table>
+<h3>Link a Category to an Event</h3><form asp-action="Link" method="post" class="row g-2">@Html.AntiForgeryToken()<div class="col-md-3"><input name="categoryId" type="number" min="1" class="form-control" placeholder="Category ID" required /></div><div class="col-md-3"><input name="eventId" type="number" min="1" class="form-control" placeholder="Event ID" required /></div><div class="col-md-3"><button class="btn btn-outline-primary">Link Category</button></div></form>

@@ -25,4 +25,18 @@
 		<None Remove="RaceDay.Api.Tests\**\*" />
 		<EmbeddedResource Remove="RaceDay.Api.Tests\**\*" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="RaceDay.Mvc\**\*.cs" />
+		<Compile Remove="RaceDay.Api.Tests\**\*.cs" />
+		<Compile Remove="**\bin\**\*.cs" />
+		<Compile Remove="**\obj\**\*.cs" />
+
+		<Content Remove="RaceDay.Mvc\**\*" />
+		<None Remove="RaceDay.Mvc\**\*" />
+		<RazorGenerate Remove="RaceDay.Mvc\**\*.cshtml" />
+		<RazorCompile Remove="RaceDay.Mvc\**\*.cshtml" />
+		<ScopedCssInput Remove="RaceDay.Mvc\**\*.css" />
+	</ItemGroup>
+
 </Project>

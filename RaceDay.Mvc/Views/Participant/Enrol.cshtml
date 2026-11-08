@@ -1,0 +1,4 @@
+@{ViewData["Title"]="Enrol in Event";var cats=ViewBag.Categories as List<RaceDay.Mvc.Models.CategoryModel> ?? new();}
+<h1>Enrol in Event #@ViewBag.EventId</h1>
+@if(cats.Count==0){<div class="alert alert-warning">No linked categories were returned. Ask the organiser to link a category to this event.</div>}
+else{<form method="post" asp-action="Enrol">@Html.AntiForgeryToken()<input type="hidden" name="eventId" value="@ViewBag.EventId"/><label class="form-label">Race Category</label><select name="categoryId" class="form-select">@foreach(var c in cats){<option value="@c.Id">@c.Name</option>}</select><button class="btn btn-primary mt-3">Confirm Enrolment</button></form>}

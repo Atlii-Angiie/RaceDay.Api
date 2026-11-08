@@ -1,0 +1,75 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "RaceDay Dashboard";
+
+    var userName = Context.Session.GetString("UserName");
+    var userRole = Context.Session.GetString("UserRole");
+}
+
+<div class="container mt-5">
+
+    @if (!string.IsNullOrEmpty(userName))
+    {
+        <div class="alert alert-success">
+            Login successful!
+        </div>
+
+        <h1 class="fw-bold">
+            Welcome, @userName!
+        </h1>
+
+        <p class="lead">
+            You are logged in as:
+            <strong>@userRole</strong>
+        </p>
+
+        @if (userRole == "Organiser")
+        {
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h3>Organiser Dashboard</h3>
+
+                    <p>
+                        Manage your race events,
+                        categories, enrolments,
+                        and results.
+                    </p>
+                </div>
+            </div>
+        }
+        else if (userRole == "Participant")
+        {
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h3>Participant Dashboard</h3>
+
+                    <p>
+                        Browse events, register for
+                        races, and view your results.
+                    </p>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center">
+            <h1 class="fw-bold">
+                Welcome to RaceDay!
+            </h1>
+
+            <p class="lead">
+                Your home for race events
+                and registrations.
+            </p>
+
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="btn btn-primary">
+                Login
+            </a>
+        </div>
+    }
+
+</div>

@@ -1,0 +1,2 @@
+@{ViewData["Title"]="Event Results";}
+<h1>Results for Event #@ViewBag.EventId</h1><a asp-action="RecordResult" asp-route-id="@ViewBag.EventId" class="btn btn-primary mb-3">Record Result</a><pre class="bg-light p-3 rounded" style="white-space:pre-wrap">@ViewBag.Content</pre>
