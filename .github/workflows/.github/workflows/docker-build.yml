@@ -1,0 +1,22 @@
+
+name: RaceDay Docker Build
+
+on:
+  push:
+    branches:
+      - part3-mvc
+  workflow_dispatch:
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build RaceDay API Docker image
+        run: docker build -f Dockerfile -t raceday-api:latest .
+
+      - name: Build RaceDay MVC Docker image
+        run: docker build -f RaceDay.Mvc/Dockerfile -t raceday-mvc:latest .
