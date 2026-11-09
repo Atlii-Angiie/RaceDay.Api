@@ -299,3 +299,25 @@ The following endpoints are implemented in the API.
 | POST | `/api/Events` | Create an event |
 | PUT | `/api/Events/{id}` | Update an owned event |
 | DELETE | `/api/Events/{id}` | Delete an owned
+
+## Docker Support
+
+RaceDay includes Dockerfiles for the API and MVC applications.
+
+### Build Docker Images
+
+Run these commands from the repository root:
+
+```bash
+docker build -f Dockerfile -t raceday-api .
+docker build -f RaceDay.Mvc/Dockerfile -t raceday-mvc .
+```
+
+### Run Docker Containers
+
+```bash
+docker run -d --name raceday-api -p 8080:8080 raceday-api
+docker run -d --name raceday-mvc -p 8081:8080 raceday-mvc
+```
+
+**Note:** SQL Server, JWT, Azure Storage and MVC API URL configuration must be supplied securely for the containers to function. Docker Desktop could not be installed in the virtual machine, so local container execution was not verified. Docker build automation was configured using GitHub Actions.
