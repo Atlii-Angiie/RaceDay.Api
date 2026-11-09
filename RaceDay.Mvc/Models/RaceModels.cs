@@ -8,6 +8,7 @@ public class RaceEvent {
  [Range(1,int.MaxValue)] public int EventTypeId {get;set;}=1;
  public int OrganizerId {get;set;} public DateOnly? RegistrationDeadline {get;set;}
  public int? MaxParticipants {get;set;}=100; public string Status {get;set;}="Open";
+ public string? ImageUrl { get; set; }
 }
 public class CategoryModel {public int Id {get;set;} [Required] public string Name {get;set;}=""; public string? Description {get;set;}}
 public class EnrolmentModel {public int Id {get;set;} public int EventId {get;set;} public int UserId {get;set;} public int CategoryId {get;set;} public string Status {get;set;}=""; public string? RaceNumber {get;set;}}

@@ -128,6 +128,9 @@ namespace RaceDay.Api.Migrations
                         .HasColumnType("int")
                         .HasColumnName("event_type_id");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(255)

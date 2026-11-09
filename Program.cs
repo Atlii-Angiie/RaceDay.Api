@@ -6,6 +6,8 @@ using RaceDay.Api.Data;
 using RaceDay.Api.Services;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Azure.Storage.Blobs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +56,17 @@ builder.Services.AddDbContext<RaceDayDbContext>(options =>
 // Register application services.
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<TokenService>();
+
+
+// Register Azure Blob Storage.
+var azureConnectionString =
+    builder.Configuration["AzureStorage:ConnectionString"]
+    ?? throw new InvalidOperationException(
+        "Azure Storage connection string is missing.");
+
+builder.Services.AddSingleton(
+    new BlobServiceClient(azureConnectionString));
+
 
 // Configure JWT authentication.
 var jwtSettings = builder.Configuration.GetSection("Jwt");
