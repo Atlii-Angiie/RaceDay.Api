@@ -1,0 +1,4 @@
+@model List<RaceDay.Mvc.Models.EnrolmentModel>
+@{ViewData["Title"]="Event Enrolments";}
+<h1>Enrolments for Event #@ViewBag.EventId</h1>@if(ViewBag.Error!=null){<div class="alert alert-warning">@ViewBag.Error</div>}
+<a class="btn btn-primary mb-3" asp-action="RecordResult" asp-route-id="@ViewBag.EventId">Record Result</a><table class="table"><thead><tr><th>Enrolment ID</th><th>Participant ID</th><th>Category ID</th><th>Status</th></tr></thead><tbody>@foreach(var e in Model){<tr><td>@e.Id</td><td>@e.UserId</td><td>@e.CategoryId</td><td>@e.Status</td></tr>}</tbody></table>

@@ -28,5 +28,8 @@ namespace RaceDay.Api.Models
         public int? MaxParticipants { get; set; }
 
         public string Status { get; set; } = string.Empty;
+
+        // Azure Blob Storage image URL
+        public string? ImageUrl { get; set; }
     }
 }

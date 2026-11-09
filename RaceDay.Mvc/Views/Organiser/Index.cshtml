@@ -1,0 +1,19 @@
+@model List<RaceDay.Mvc.Controllers.OrganiserController.EventSummary>
+@{ ViewData["Title"] = "Organiser Dashboard"; var upcoming = Model.Count(e => e.EventDate.Date >= DateTime.Today); var total = Model.Sum(e => e.TotalEnrolments ?? 0); }
+<section class="mt-4">
+ <div class="rd-heading"><span class="rd-heading-icon" aria-hidden="true">🏁</span><div><div class="rd-kicker">Race control centre</div><h1 class="mb-0">Organiser Dashboard</h1></div></div>
+ <p class="lead">Welcome, @ViewBag.UserName! Let's make the next race unforgettable.</p>
+ @if(ViewBag.ErrorMessage != null){<div class="alert alert-warning" role="alert">@ViewBag.ErrorMessage</div>}
+ <div class="rd-stat-grid">
+  <div class="rd-stat rd-stat-blue"><div class="rd-stat-label">🏁 My Events</div><div class="rd-stat-value">@Model.Count</div><div class="rd-stat-note">Races you're organising</div></div>
+  <div class="rd-stat rd-stat-teal"><div class="rd-stat-label">📅 Upcoming Events</div><div class="rd-stat-value">@upcoming</div><div class="rd-stat-note">Races ahead</div></div>
+  <div class="rd-stat rd-stat-cyan"><div class="rd-stat-label">👟 Total Enrolments</div><div class="rd-stat-value">@total</div><div class="rd-stat-note">Enrolment records</div></div>
+ </div>
+ <div class="rd-actions"><a asp-controller="Events" asp-action="Create" class="btn btn-primary">＋ Create Event</a><a asp-controller="Categories" asp-action="Index" class="btn btn-outline-primary">Manage Categories</a><a asp-controller="Events" asp-action="Index" class="btn btn-outline-primary">Browse Races</a></div>
+ <div class="rd-photo-card mb-4"><img src="~/images/trail-runner.jpg" alt="Runner on a scenic trail at sunrise"/><div class="rd-photo-copy"><div class="rd-kicker" style="color:#4be5f4">MAKE EVERY RACE COUNT</div><h3>Build the next big race day.</h3><p>Create an event, link categories and welcome runners.</p></div></div>
+ <h2 class="rd-section-title">🏆 My Race Events</h2>
+ @if(Model.Count == 0){<div class="rd-panel rd-empty">No events yet. <a asp-controller="Events" asp-action="Create">Create your first race</a>.</div>}
+ else{<div class="rd-table-wrap"><table class="table table-hover"><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>Distance</th><th>Fee</th><th>Enrolments</th><th>Status</th><th>Manage</th></tr></thead><tbody>
+ @foreach(var e in Model){<tr><td><div class="rd-table-title">@e.Name</div><div class="rd-mini">Event #@e.Id</div></td><td>@e.EventDate.ToString("dd MMM yyyy")</td><td>@e.Location</td><td>@e.Distance km</td><td>R @e.EntryFee.ToString("0.00")</td><td>@(e.TotalEnrolments?.ToString() ?? "Unavailable")</td><td><span class="rd-status @(e.Status?.Equals("Open",StringComparison.OrdinalIgnoreCase)==true ? "rd-status-open" : "rd-status-neutral")">@e.Status</span></td><td><div class="d-flex flex-wrap gap-1"><a class="btn btn-sm btn-outline-primary" asp-controller="Events" asp-action="Edit" asp-route-id="@e.Id">Edit</a><a class="btn btn-sm btn-outline-secondary" asp-controller="RaceManagement" asp-action="Enrolments" asp-route-id="@e.Id">Enrolments</a><a class="btn btn-sm btn-outline-secondary" asp-controller="RaceManagement" asp-action="Results" asp-route-id="@e.Id">Results</a><form asp-controller="Events" asp-action="Delete" asp-route-id="@e.Id" method="post">@Html.AntiForgeryToken()<button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this event?')">Delete</button></form></div></td></tr>}
+ </tbody></table></div>}
+</section>

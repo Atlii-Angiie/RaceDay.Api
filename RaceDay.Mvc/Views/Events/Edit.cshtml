@@ -1,0 +1,43 @@
+﻿@model RaceDay.Mvc.Models.RaceEvent
+@{var editing=Model.Id>0;ViewData["Title"]=editing?"Edit Event":"Create Event";}
+<h1>@ViewData["Title"]</h1><p class="text-muted">Event Type ID must match an existing event type in your API.</p>
+<form method="post" asp-action="@(editing?"Edit":"Create")" asp-route-id="@(editing?Model.Id:null)">
+@Html.AntiForgeryToken()<div asp-validation-summary="All" class="text-danger"></div>
+<div class="row g-3">
+<div class="col-md-6"><label asp-for="Name"></label><input asp-for="Name" class="form-control" required /></div>
+<div class="col-md-6"><label asp-for="Location"></label><input asp-for="Location" class="form-control" required /></div>
+<div class="col-12"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control"></textarea></div>
+<div class="col-md-4"><label asp-for="EventDate"></label><input asp-for="EventDate" type="date" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="StartTime"></label><input asp-for="StartTime" type="time" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="RegistrationDeadline"></label><input asp-for="RegistrationDeadline" type="date" class="form-control" /></div>
+<div class="col-md-3"><label asp-for="Distance"></label><input asp-for="Distance" type="number" step="0.01" class="form-control" /></div>
+<div class="col-md-3"><label asp-for="EntryFee"></label><input asp-for="EntryFee" type="number" step="0.01" class="form-control" /></div>
+<div class="col-md-3"><label asp-for="EventTypeId"></label><input asp-for="EventTypeId" type="number" min="1" class="form-control" /></div>
+<div class="col-md-3"><label asp-for="MaxParticipants"></label><input asp-for="MaxParticipants" type="number" min="1" class="form-control" /></div>
+</div><button class="btn btn-primary mt-4">Save Event</button> <a asp-controller="Organiser" asp-action="Index" class="btn btn-outline-secondary mt-4">Cancel</a>
+    @if (Model.Id > 0)
+    {
+        <div class="card p-4 mt-4">
+            <h4>📷 Upload Race Image</h4>
+
+            <form asp-controller="Events"
+                  asp-action="UploadImage"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <input type="file"
+                       name="image"
+                       accept=".jpg,.jpeg,.png"
+                       class="form-control mb-3"
+                       required />
+
+                <button type="submit" class="btn btn-primary">
+                    Upload Image to Azure ☁️
+                </button>
+            </form>
+        </div>
+    }
+</form>

@@ -1,0 +1,100 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var role = Context.Session.GetString("UserRole");
+    var name = Context.Session.GetString("UserName");
+    var isLoggedIn = !string.IsNullOrWhiteSpace(role);
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0B2340" />
+    <title>@ViewData["Title"] · RaceDay</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/raceday-sports.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="race-accent" aria-hidden="true"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark race-navbar sticky-top" aria-label="Main navigation">
+        <div class="container">
+            <a class="navbar-brand race-brand" asp-controller="Home" asp-action="Index" aria-label="RaceDay home">
+                <span class="brand-symbol" aria-hidden="true">↗</span>
+                RACE<span>DAY</span><span class="brand-dot">.</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="mainNav" class="collapse navbar-collapse">
+                <ul class="navbar-nav mx-auto align-items-lg-center gap-lg-1">
+                    @if (isLoggedIn)
+                    {
+                        @if (role == "Organiser")
+                        {
+                            <li class="nav-item"><a class="nav-link @(currentController == "Organiser" ? "active" : "")" asp-controller="Organiser" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Events" && currentAction == "Index" ? "active" : "")" asp-controller="Events" asp-action="Index">Explore Events</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Events" && currentAction == "Create" ? "active" : "")" asp-controller="Events" asp-action="Create">Create Event</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Categories" ? "active" : "")" asp-controller="Categories" asp-action="Index">Categories</a></li>
+                        }
+                        else if (role == "Participant")
+                        {
+                            <li class="nav-item"><a class="nav-link @(currentController == "Participant" && currentAction == "Index" ? "active" : "")" asp-controller="Participant" asp-action="Index">My Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Events" ? "active" : "")" asp-controller="Events" asp-action="Index">Find Races</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Participant" && currentAction == "Results" ? "active" : "")" asp-controller="Participant" asp-action="Results">My Results</a></li>
+                            <li class="nav-item"><a class="nav-link @(currentController == "Participant" && currentAction == "Profile" ? "active" : "")" asp-controller="Participant" asp-action="Profile">Profile</a></li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                    }
+                </ul>
+                <div class="nav-actions d-flex flex-wrap align-items-center gap-2">
+                    @if (isLoggedIn)
+                    {
+                        <span class="user-chip"><span class="user-avatar" aria-hidden="true">@((name ?? "R").Substring(0, 1).ToUpperInvariant())</span><span class="user-chip-text"><strong>@name</strong><small>@role</small></span></span>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-nav-logout">Log out</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-nav-logout">Log in</a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-race-primary btn-sm">Join RaceDay <span aria-hidden="true">↗</span></a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="race-hero-band">
+        <div class="container race-hero-inner">
+            <div class="hero-kicker"><span class="live-pulse" aria-hidden="true"></span> THE STARTING LINE FOR WHAT'S NEXT</div>
+            <div class="hero-title">@if (role == "Organiser") { <text>MAKE EVERY RACE <em>COUNT.</em></text> } else if (role == "Participant") { <text>YOUR NEXT FINISH LINE <em>AWAITS.</em></text> } else { <text>EVERY FINISH STARTS <em>HERE.</em></text> }</div>
+            <p class="hero-subtitle">@if (role == "Organiser") { <text>Create events. Inspire runners. Track every milestone.</text> } else if (role == "Participant") { <text>Discover races, chase goals and celebrate every finish.</text> } else { <text>Discover events, join the movement and run your race.</text> }</p>
+            <span class="hero-track" aria-hidden="true">01 / RUN THE DAY</span>
+        </div>
+    </div>
+
+    <main class="container race-main" id="main-content">
+        @if (TempData["Notice"] != null)
+        {
+            <div class="alert alert-info" role="status">@TempData["Notice"]</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="race-footer">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="footer-brand">RACE<span>DAY</span><span class="brand-dot">.</span> <span class="footer-motto">GO FURTHER. FINISH STRONGER.</span></div>
+            <span class="footer-copy">Built for the love of the race · © @DateTime.Now.Year RaceDay</span>
+        </div>
+    </footer>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
